@@ -895,7 +895,6 @@ void function() { try {
 				CSSUsageResults.rules[generalizedSelector] || (CSSUsageResults.rules[generalizedSelector] = {count:0,props:Object.create(null)})
 			));
 			
-			// MARK
 
 			// Increment the occurence counter of found generalized selectors
 			for(var i = 0; i < generalizedSelectorsData.length; i++) {
