@@ -1,4 +1,5 @@
 import CSSAtRuleUsage from './cssAtRuleUsage';
+import Setup from './setup';
 
 var styles = CSSAtRuleUsage.test();
 
@@ -31,8 +32,8 @@ function onready(): void {
     // Keep track of duration
     var startTime = performance.now();
 
+    Setup.guardExecution();
     console.log(document.styleSheets);
-
 }
 
 if(document.readyState !== 'complete') {
