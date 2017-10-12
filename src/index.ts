@@ -1,7 +1,5 @@
-import CSSAtRuleUsage from './cssAtRuleUsage';
-import Setup from './setup';
-
-var styles = CSSAtRuleUsage.test();
+import Setup from './Setup';
+import CssStyleWalker from './CssStyleWalker';
 
 var hasAlreadyRun = false;
 
@@ -33,7 +31,13 @@ function onready(): void {
     var startTime = performance.now();
 
     Setup.guardExecution();
-    console.log(document.styleSheets);
+
+    var styleSheets = document.styleSheets;
+
+    var cssWalker = new CssStyleWalker();
+
+    var ret = cssWalker.walkOverCssStyleUsage(styleSheets);
+    console.log(ret);
 }
 
 if(document.readyState !== 'complete') {
