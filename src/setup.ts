@@ -1,4 +1,7 @@
 export default class Setup {
+	public static browserIsEdge = navigator.userAgent.indexOf('Edge')>=0;
+	public static browserIsFirefox = navigator.userAgent.indexOf('Firefox')>=0;
+
     public static guardExecution() {
         // Don't run in subframes for now
 		if (top.location.href !== location.href) throw new Error("CSSUsage: the script doesn't run in frames for now");

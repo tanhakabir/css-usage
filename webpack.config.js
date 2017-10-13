@@ -13,7 +13,9 @@ module.exports = {
       { test: /\.json$/, loader: 'json-loader' }
     ]
   },
-  
+  plugins: [
+    new webpack.optimize.UglifyJsPlugin({minimize: true})
+  ],
   resolve: {
     extensions: ['.ts', '.js', '.json']
   },

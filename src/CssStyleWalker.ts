@@ -55,14 +55,14 @@ export default class CssStyleWalker {
      * rules and then call the rule analyzers currently registered
      */
     public walkOverCssRules(/*CSSRuleList*/ cssRules: any, styleSheet: any, parentMatchedElements: any) {
-        for (var ruleIndex = cssRules.length; ruleIndex >= 0; ruleIndex--) {
+        for (var ruleIndex = 0; ruleIndex < cssRules.length; ruleIndex++) {
 
             // Loop through the rules
             var rule = cssRules[ruleIndex];
 
             // Until we can correlate animation usage
             // to keyframes do not parse @keyframe rules
-            if(rule.type == 7) {
+            if(rule.type == 8) {
                 // keyframes[rule.name] = rule;
                 continue;
             }

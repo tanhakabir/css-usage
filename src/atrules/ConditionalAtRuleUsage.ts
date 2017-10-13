@@ -1,4 +1,4 @@
-import AtRuleUsage from './AtRuleUsage'
+import AtRuleUsage from './AtRuleUsage';
 
 export default class ConditionalAtRuleUsage extends AtRuleUsage {
     public conditions = {};

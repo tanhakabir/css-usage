@@ -3,9 +3,6 @@ import CssStyleWalker from './CssStyleWalker';
 
 var hasAlreadyRun = false;
 
-var browserIsEdge = navigator.userAgent.indexOf('Edge')>=0;
-var browserIsFirefox = navigator.userAgent.indexOf('Firefox')>=0;
-
 /**
  * This is the main entrypoint of our script
  */
@@ -21,7 +18,7 @@ function onready(): void {
     if(document.styleSheets.length == 0) { return; }
 
     // Check to see if you're on a Firefox failure page
-    if(document.styleSheets.length == 1 && browserIsFirefox) {
+    if(document.styleSheets.length == 1 && Setup.browserIsFirefox) {
         if(document.styleSheets[0].href !== null && document.styleSheets[0].href.indexOf('aboutNetError') != -1) {
             return;
         }
