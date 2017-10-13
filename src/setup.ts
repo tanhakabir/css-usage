@@ -1,3 +1,5 @@
+import CssPropertyValuesAnalyzer from './CssPropertyValuesAnalyzer';
+
 export default class Setup {
 	public static browserIsEdge = navigator.userAgent.indexOf('Edge')>=0;
 	public static browserIsFirefox = navigator.userAgent.indexOf('Firefox')>=0;
@@ -13,5 +15,9 @@ export default class Setup {
 				return this.replace(/^\s+|\s+$/g, '');
 			}
         }
-    }
+	}
+	
+	public static setUpClasses() {
+		CssPropertyValuesAnalyzer.getBuggyValuesForThisBrowser();
+	}
 }

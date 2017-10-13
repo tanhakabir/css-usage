@@ -118,7 +118,7 @@ export default class CssPropertyValuesAnalyzer {
         value = value.trim().toLowerCase();
         
         // detect suspicious values
-        var buggyValues = CssPropertyValuesAnalyzer.getBuggyValuesForThisBrowser();
+        var buggyValues = CssPropertyValuesAnalyzer.buggyValuesForThisBrowser;
         
         // apply common sense to the given value, per browser
         var buggyState = buggyValues[key+':'+value];
@@ -142,63 +142,58 @@ export default class CssPropertyValuesAnalyzer {
         return true;
     }
 
-    private static getBuggyValuesForThisBrowser(): any {
-        if(CssPropertyValuesAnalyzer.buggyValuesForThisBrowser) {
-            return CssPropertyValuesAnalyzer.buggyValuesForThisBrowser;
-        } else {
-            var buggyValues = Object.create(null);
+    public static getBuggyValuesForThisBrowser() {
+        var buggyValues = Object.create(null);
 
-            // Edge reports initial value instead of "initial", we have to be cautious
-            if(Setup.browserIsEdge) {
-                buggyValues['*'] = 1; // make 0 values automatic for longhand properties
-                
-                //buggyValues['list-style-position:outside'] = 0;
-                buggyValues['list-style-image:none'] = 1;
-                //buggyValues['outline-color:invert'] = 0;
-                //buggyValues['outline-style:none'] = 0;
-                //buggyValues['outline-width:medium'] = 0;
-                //buggyValues['background-image:none'] = 0;
-                //buggyValues['background-attachment:scroll'] = 0;
-                //buggyValues['background-repeat:repeat'] = 0;
-                //buggyValues['background-repeat-x:repeat'] = 0;
-                //buggyValues['background-repeat-y:repeat'] = 0;
-                //buggyValues['background-position-x:0%'] = 0;
-                //buggyValues['background-position-y:0%'] = 0;
-                //buggyValues['background-size:auto'] = 0;
-                //buggyValues['background-origin:padding-box'] = 0;
-                //buggyValues['background-clip:border-box'] = 0;
-                //buggyValues['background-color:transparent'] = 0;
-                buggyValues['border-top-color:currentcolor'] = 1;
-                buggyValues['border-right-color:currentcolor'] = 1;
-                buggyValues['border-bottom-color:currentcolor'] = 1;
-                buggyValues['border-left-color:currentcolor'] = 1;
-                //buggyValues['border-top-style:solid'] = 0;
-                //buggyValues['border-right-style:solid'] = 0;
-                //buggyValues['border-bottom-style:solid'] = 0;
-                //buggyValues['border-left-style:solid'] = 0;
-                buggyValues['border-top-width:medium'] = 1;
-                buggyValues['border-right-width:medium'] = 1;
-                buggyValues['border-bottom-width:medium'] = 1;
-                buggyValues['border-left-width:medium'] = 1;
-                buggyValues['border-image-source:none'] = 1;
-                buggyValues['border-image-outset:0'] = 1;
-                buggyValues['border-image-width:1'] = 1;
-                buggyValues['border-image-repeat:repeat'] = 1;
-                buggyValues['border-image-repeat-x:repeat'] = 1;
-                buggyValues['border-image-repeat-y:repeat'] = 1;
-                buggyValues['line-height:normal'] = 1;
-                //buggyValues['font-size-adjust:none'] = 0;
-                buggyValues['font-stretch:normal'] = 1;
-                
-            }
+        // Edge reports initial value instead of "initial", we have to be cautious
+        if(Setup.browserIsEdge) {
+            buggyValues['*'] = 1; // make 0 values automatic for longhand properties
             
-            // Firefox reports initial values instead of "initial", we have to be cautious
-            if(Setup.browserIsFirefox) {
-                buggyValues['*'] = 1; // make 0 values automatic for longhand properties
-            }
-
-            CssPropertyValuesAnalyzer.buggyValuesForThisBrowser = buggyValues;
-            return CssPropertyValuesAnalyzer.buggyValuesForThisBrowser;
+            //buggyValues['list-style-position:outside'] = 0;
+            buggyValues['list-style-image:none'] = 1;
+            //buggyValues['outline-color:invert'] = 0;
+            //buggyValues['outline-style:none'] = 0;
+            //buggyValues['outline-width:medium'] = 0;
+            //buggyValues['background-image:none'] = 0;
+            //buggyValues['background-attachment:scroll'] = 0;
+            //buggyValues['background-repeat:repeat'] = 0;
+            //buggyValues['background-repeat-x:repeat'] = 0;
+            //buggyValues['background-repeat-y:repeat'] = 0;
+            //buggyValues['background-position-x:0%'] = 0;
+            //buggyValues['background-position-y:0%'] = 0;
+            //buggyValues['background-size:auto'] = 0;
+            //buggyValues['background-origin:padding-box'] = 0;
+            //buggyValues['background-clip:border-box'] = 0;
+            //buggyValues['background-color:transparent'] = 0;
+            buggyValues['border-top-color:currentcolor'] = 1;
+            buggyValues['border-right-color:currentcolor'] = 1;
+            buggyValues['border-bottom-color:currentcolor'] = 1;
+            buggyValues['border-left-color:currentcolor'] = 1;
+            //buggyValues['border-top-style:solid'] = 0;
+            //buggyValues['border-right-style:solid'] = 0;
+            //buggyValues['border-bottom-style:solid'] = 0;
+            //buggyValues['border-left-style:solid'] = 0;
+            buggyValues['border-top-width:medium'] = 1;
+            buggyValues['border-right-width:medium'] = 1;
+            buggyValues['border-bottom-width:medium'] = 1;
+            buggyValues['border-left-width:medium'] = 1;
+            buggyValues['border-image-source:none'] = 1;
+            buggyValues['border-image-outset:0'] = 1;
+            buggyValues['border-image-width:1'] = 1;
+            buggyValues['border-image-repeat:repeat'] = 1;
+            buggyValues['border-image-repeat-x:repeat'] = 1;
+            buggyValues['border-image-repeat-y:repeat'] = 1;
+            buggyValues['line-height:normal'] = 1;
+            //buggyValues['font-size-adjust:none'] = 0;
+            buggyValues['font-stretch:normal'] = 1;
+            
         }
+        
+        // Firefox reports initial values instead of "initial", we have to be cautious
+        if(Setup.browserIsFirefox) {
+            buggyValues['*'] = 1; // make 0 values automatic for longhand properties
+        }
+
+        CssPropertyValuesAnalyzer.buggyValuesForThisBrowser = buggyValues;
     }
 }

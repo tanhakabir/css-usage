@@ -28,6 +28,7 @@ function onready(): void {
     var startTime = performance.now();
 
     Setup.guardExecution();
+    Setup.setUpClasses();
 
     var styleSheets = document.styleSheets;
 

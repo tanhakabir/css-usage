@@ -1,5 +1,6 @@
 import CSSUsage from './CSSUsage';
 import CssAtRuleUsage from './atrules/CssAtRuleUsage';
+import CssPropertyValuesAnalyzer from './CssPropertyValuesAnalyzer';
 
 export default class CssStyleWalker {
     private ruleAnalyzers = [];
@@ -54,7 +55,7 @@ export default class CssStyleWalker {
      * This is the css work horse, this will will loop over the
      * rules and then call the rule analyzers currently registered
      */
-    public walkOverCssRules(/*CSSRuleList*/ cssRules: any, styleSheet: any, parentMatchedElements: any) {
+    private walkOverCssRules(/*CSSRuleList*/ cssRules: any, styleSheet: any, parentMatchedElements: any) {
         for (var ruleIndex = 0; ruleIndex < cssRules.length; ruleIndex++) {
 
             // Loop through the rules
@@ -82,46 +83,13 @@ export default class CssStyleWalker {
      * [1] walk over its child rules if needed
      * [2] call rule analyzers for that rule if it has style data
      */
-    public processRule(rule, parentMatchedElements) {			
+    private processRule(rule, parentMatchedElements) {			
         // Increment the rule type's counter
         this.CSSUsageTypes[rule.type|0]++; 
 
         // Some CssRules have nested rules to walk through:
         if (rule.cssRules && rule.cssRules.length>0) {
-            
             this.walkOverCssRules(rule.cssRules, rule.parentStyleSheet, parentMatchedElements);
-            
-        }
-
-        // Some CssRules have style we can analyze
-        if(rule.style) {
-            // find what the rule applies to
-            var selectorText;
-            var matchedElements; 
-            if(rule.selectorText) {
-                //selectorText = CSSUsage.PropertyValuesAnalyzer.cleanSelectorText(rule.selectorText);
-                try {
-                    if(parentMatchedElements) {
-                        matchedElements = [].slice.call(document.querySelectorAll(selectorText));
-                        matchedElements.parentMatchedElements = parentMatchedElements;
-                    } else {
-                        matchedElements = [].slice.call(document.querySelectorAll(selectorText));
-                    }
-                } catch(ex) {
-                    matchedElements = [];
-                    console.warn(ex.stack||("Invalid selector: "+selectorText+" -- via "+rule.selectorText));
-                }
-            } else {
-                selectorText = '@atrule:'+rule.type;
-                if(parentMatchedElements) {
-                    matchedElements = parentMatchedElements;
-                } else {
-                    matchedElements = [];
-                }
-            }
-
-            // run an analysis on it
-            //runRuleAnalyzers(rule.style, selectorText, matchedElements, rule.type);
         }
 
         // run analysis on at rules to populate CSSUsageResults.atrules
@@ -135,6 +103,44 @@ export default class CssStyleWalker {
                 let alreadyCollected = this.CSSUsageAtRules[selectorText];
                 this.CSSUsageAtRules[selectorText] = CssAtRuleUsage.processAtRuleUpdate(rule, alreadyCollected);
             } 
+
+        } else if(rule.style) {
+            // find what the rule applies to
+            var selectorText;
+            var matchedElements; 
+            if(rule.selectorText) {
+                selectorText = CssPropertyValuesAnalyzer.cleanSelectorText(rule.selectorText);
+                try {
+                    if(parentMatchedElements) {
+                        matchedElements = [].slice.call(document.querySelectorAll(selectorText));
+                        matchedElements.parentMatchedElements = parentMatchedElements;
+                    } else {
+                        matchedElements = [].slice.call(document.querySelectorAll(selectorText));
+                    }
+                } catch(ex) {
+                    matchedElements = [];
+                    console.warn(ex.stack||("Invalid selector: "+selectorText+" -- via "+rule.selectorText));
+                }
+            } 
+            // run an analysis on it
+            //runRuleAnalyzers(rule.style, selectorText, matchedElements, rule.type);
         }
+    }
+
+    private runRuleAnalyzers(style, selectorText, matchedElements, type, isInline) {
+        
+        // Keep track of the counters
+        if(isInline) {
+            this.amountOfInlineStyles++;
+        } else {
+            this.amountOfSelectors++;
+        }
+        
+        // Run all rule analyzers
+        for(var i = 0; i < this.ruleAnalyzers.length; i++) {
+            var runAnalyzer = this.ruleAnalyzers[i];
+            runAnalyzer(style, selectorText, matchedElements, type, isInline);
+        }
+        
     }
 }
