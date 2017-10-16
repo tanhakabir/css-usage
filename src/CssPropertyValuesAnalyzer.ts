@@ -27,6 +27,45 @@ export default class CssPropertyValuesAnalyzer {
     private static buggyValuesForThisBrowser = null;
 
     /**
+     * Analyze the styles of a rule to produce the count of property usage that augments
+     * previous statistics collected.
+     * @param style the style of the rule to analyze the prop count of
+     * @param props the pervious count statistics of the props of the rule
+     */
+    public static analyzePropCount(style: any, props: any): any {
+        let cssText = ' ' + style.cssText.toLowerCase(); 
+        
+        for (var i = style.length; i--;) {
+            // processes out normalized prop name for style
+            var key = style[i], rootKeyIndex=key.indexOf('-'), rootKey = rootKeyIndex==-1 ? key : key.substr(0,rootKeyIndex);
+            var normalizedKey = rootKeyIndex==0&&key.indexOf('-',1)==1 ? '--var' : key;
+            var styleValue = style.getPropertyValue(key);
+
+            // Only keep styles that were declared by the author
+            // We need to make sure we're only checking string props
+            var isValueInvalid = typeof styleValue !== 'string' && styleValue != "" && styleValue != undefined;
+            if (isValueInvalid) { 
+                continue;
+            }
+            
+            var isPropertyUndefined = (cssText.indexOf(' '+key+':') == -1) && (styleValue=='initial' || !CssPropertyValuesAnalyzer.valueExistsInRootProperty(cssText, key, rootKey, styleValue));
+            if (isPropertyUndefined) {
+                continue;
+            }
+
+            if(!props[normalizedKey]) {
+                props[normalizedKey] = Object.create(null);
+                props[normalizedKey] = {"count": 1};
+            } else {
+                var propCount = props[normalizedKey].count;
+                props[normalizedKey].count = propCount + 1;
+            }
+        }
+
+        return props;
+    }
+
+    /**
      * If you try to do querySelectorAll on pseudo selectors
      * it returns 0 because you are not actually doing the action the pseudo is stating those things,
      * but we will honor those declarations and we don't want them to be missed,

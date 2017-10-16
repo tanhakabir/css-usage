@@ -246,74 +246,34 @@ export default class CssAtRuleUsage {
                 continue;
             }
 
-            let cssText = ' ' + style.cssText.toLowerCase(); 
-
-            for (var i = style.length; i--;) {
-                // processes out normalized prop name for style
-                var key = style[i], rootKeyIndex=key.indexOf('-'), rootKey = rootKeyIndex==-1 ? key : key.substr(0,rootKeyIndex);
-                var normalizedKey = rootKeyIndex==0&&key.indexOf('-',1)==1 ? '--var' : key;
-                var styleValue = style.getPropertyValue(key);
-
-                // Only keep styles that were declared by the author
-                // We need to make sure we're only checking string props
-                var isValueInvalid = typeof styleValue !== 'string' && styleValue != "" && styleValue != undefined;
-                if (isValueInvalid) { 
+            if(ruleBody.selector) { 
+                try {
+                    var selectorText = CssPropertyValuesAnalyzer.cleanSelectorText(ruleBody.selectorText);
+                    var matchedElements = [].slice.call(document.querySelectorAll(selectorText));
+                    
+                    if (matchedElements.length == 0) {
+                        continue;
+                    }
+                } catch (ex) {
+                    console.warn(ex.stack||("Invalid selector: "+selectorText+" -- via "+ruleBody.selectorText));
                     continue;
-                }
-                
-                var isPropertyUndefined = (cssText.indexOf(' '+key+':') == -1) && (styleValue=='initial' || !CssPropertyValuesAnalyzer.valueExistsInRootProperty(cssText, key, rootKey, styleValue));
-                if (isPropertyUndefined) {
-                    continue;
-                }
-
-                if(!props[normalizedKey]) {
-                    props[normalizedKey] = Object.create(null);
-                    props[normalizedKey] = {"count": 1};
-                } else {
-                    var propCount = props[normalizedKey].count;
-                    props[normalizedKey].count = propCount + 1;
                 }
             }
+
+            props = CssPropertyValuesAnalyzer.analyzePropCount(style, props);
         }
 
         return props;
     }
 
     private static analyzePropCount(style: any): any {
-        let cssText = ' ' + style.cssText.toLowerCase(); 
-
         var props = Object.create(null);
 
-        for (var i = style.length; i--;) {
-            // processes out normalized prop name for style
-            var key = style[i], rootKeyIndex=key.indexOf('-'), rootKey = rootKeyIndex==-1 ? key : key.substr(0,rootKeyIndex);
-            var normalizedKey = rootKeyIndex==0&&key.indexOf('-',1)==1 ? '--var' : key;
-            var styleValue = style.getPropertyValue(key);
-
-            // Only keep styles that were declared by the author
-            // We need to make sure we're only checking string props
-            var isValueInvalid = typeof styleValue !== 'string' && styleValue != "" && styleValue != undefined;
-            if (isValueInvalid) { 
-                continue;
-            }
-            
-            var isPropertyUndefined = (cssText.indexOf(' '+key+':') == -1) && (styleValue=='initial' || !CssPropertyValuesAnalyzer.valueExistsInRootProperty(cssText, key, rootKey, styleValue));
-            if (isPropertyUndefined) {
-                continue;
-            }
-
-            if(!props[normalizedKey]) {
-                props[normalizedKey] = Object.create(null);
-                props[normalizedKey] = {"count": 1};
-            } else {
-                var propCount = props[normalizedKey].count;
-                props[normalizedKey].count = propCount + 1;
-            }
-        }
+        props = CssPropertyValuesAnalyzer.analyzePropCount(style, props);
 
         return props;
     }
-
+    
     private static combineUsageStats(oldUsage: any, newUsage: any): any {
         var modified = oldUsage;
 
