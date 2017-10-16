@@ -3,7 +3,7 @@ import CssAtRuleUsage from './atrules/CssAtRuleUsage';
 import CssPropertyValuesAnalyzer from './CssPropertyValuesAnalyzer';
 
 export default class CssStyleWalker {
-    private ruleAnalyzers = [];
+    public ruleAnalyzers = [];
 
     // These stats are being collected while walking over the css style rules
     public amountOfInlineStyles = 0;
@@ -122,12 +122,16 @@ export default class CssStyleWalker {
                     console.warn(ex.stack||("Invalid selector: "+selectorText+" -- via "+rule.selectorText));
                 }
             } 
+
             // run an analysis on it
-            //runRuleAnalyzers(rule.style, selectorText, matchedElements, rule.type);
+            this.runRuleAnalyzers(rule.style, selectorText, matchedElements, rule.type, null);
         }
     }
 
-    private runRuleAnalyzers(style, selectorText, matchedElements, type, isInline) {
+    /**
+     * Given a rule and its data, send it to all rule analyzers
+     */
+    private runRuleAnalyzers(style: any, selectorText: any, matchedElements: any, type: any, isInline: any) {
         
         // Keep track of the counters
         if(isInline) {
@@ -142,5 +146,22 @@ export default class CssStyleWalker {
             runAnalyzer(style, selectorText, matchedElements, type, isInline);
         }
         
+    }
+
+    public static combineUsageStats(oldUsage: any, newUsage: any): any {
+        var modified = oldUsage;
+
+        var keys = Object.keys(newUsage);
+
+        for(let key of keys) {
+            if(modified[key]) {
+                var previousCount = modified[key].count;
+                modified[key].count = previousCount + 1;
+            } else {
+                modified[key] = newUsage[key];
+            }
+        }
+
+        return modified;
     }
 }

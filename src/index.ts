@@ -1,5 +1,6 @@
 import Setup from './Setup';
 import CssStyleWalker from './CssStyleWalker';
+import CssSelectorAnalyzer from './CssSelectorAnalyzer';
 
 var hasAlreadyRun = false;
 
@@ -33,6 +34,9 @@ function onready(): void {
     var styleSheets = document.styleSheets;
 
     var cssWalker = new CssStyleWalker();
+    var selectorAnalyzer = new CssSelectorAnalyzer();
+
+    //cssWalker.ruleAnalyzers.push(selectorAnalyzer.parseSelector);
 
     var ret = cssWalker.walkOverCssStyleUsage(styleSheets);
     console.log(ret);

@@ -1,7 +1,7 @@
+import CssStyleWalker from '../CssStyleWalker';
 import AtRuleUsage from './AtRuleUsage';
 import ConditionalAtRuleUsage from './ConditionalAtRuleUsage';
 import KeyframeAtRuleUsage from './KeyframeAtRuleUsage';
-import PseudoAtRuleUsage from './PseudoAtRuleUsage';
 import CssPropertyValuesAnalyzer from '../CssPropertyValuesAnalyzer';
 
 export default class CssAtRuleUsage {
@@ -39,9 +39,9 @@ export default class CssAtRuleUsage {
             var cRet = <ConditionalAtRuleUsage>ret;
             let newUsage = CssAtRuleUsage.processConditionalAtRule(rule);
 
-            cRet.props = CssAtRuleUsage.combineUsageStats(cRet.props, newUsage.props);
-            cRet.conditions = CssAtRuleUsage.combineUsageStats(cRet.conditions, newUsage.conditions);
-            cRet.nested = CssAtRuleUsage.combineUsageStats(cRet.nested, newUsage.nested);
+            cRet.props = CssStyleWalker.combineUsageStats(cRet.props, newUsage.props);
+            cRet.conditions = CssStyleWalker.combineUsageStats(cRet.conditions, newUsage.conditions);
+            //cRet.nested = CssAtRuleUsage.combineUsageStats(cRet.nested, newUsage.nested);
 
             ret = cRet;
         } else  {
@@ -51,21 +51,12 @@ export default class CssAtRuleUsage {
                 let kRet = <KeyframeAtRuleUsage> ret;
                 let kNew = <KeyframeAtRuleUsage> newUsage;
 
-                kRet.keyframes = CssAtRuleUsage.combineUsageStats(kRet.keyframes, kNew.keyframes);
+                kRet.keyframes = CssStyleWalker.combineUsageStats(kRet.keyframes, kNew.keyframes);
 
                 ret = kRet;
             }
 
-            // TODO: not returning pseudo usage
-            let pRet = <PseudoAtRuleUsage> ret;
-            if(pRet.pseudos) {
-                let pNew = <PseudoAtRuleUsage> newUsage;
-
-                pRet.pseudos = CssAtRuleUsage.combineUsageStats(pRet.pseudos, pNew.pseudos);
-                ret = pRet;
-            }
-
-            ret.props = CssAtRuleUsage.combineUsageStats(ret.props, newUsage.props);
+            ret.props = CssStyleWalker.combineUsageStats(ret.props, newUsage.props);
         }
 
         var count = ret.count;
@@ -85,7 +76,7 @@ export default class CssAtRuleUsage {
 
         if(rule.cssRules) {
             ret.props = CssAtRuleUsage.analyzeAtRulePropCount(rule.cssRules);
-            ret.nested = CssAtRuleUsage.processNestedRules(rule.cssRules);
+            //ret.nested = CssAtRuleUsage.processNestedRules(rule.cssRules); // TODO: remove nested
         }
 
         let conditionSelector = CssAtRuleUsage.processConditionText(rule.conditionText);
@@ -150,7 +141,7 @@ export default class CssAtRuleUsage {
                 for (let selector of individualNested) {
                     if(!nested[selector]) {
                         nested[selector] = Object.create(null);
-                        nested[selector] = {"count": 1}
+                        nested[selector] = {"count": 1};
                     } else {
                         var nestedCount = nested[selector].count;
                         nested[selector].count = nestedCount + 1;
@@ -169,16 +160,9 @@ export default class CssAtRuleUsage {
      */
     private static processGeneralAtRule(rule: any): AtRuleUsage {
         if(rule.style) {
-            if(rule.pseudoClass) {
-                var pseudoRet = new PseudoAtRuleUsage();
-                pseudoRet.pseudos = CssAtRuleUsage.processPseudoClassesOfAtrules(rule);
-                pseudoRet.props = CssAtRuleUsage.analyzePropCount(rule.style);
-                return pseudoRet;
-            } else {
-                var ret = new AtRuleUsage();
-                ret.props = CssAtRuleUsage.analyzePropCount(rule.style);
-                return ret;
-            }
+            var ret = new AtRuleUsage();
+            ret.props = CssAtRuleUsage.analyzePropCount(rule.style);
+            return ret;
         } else if (rule.cssRules) {
             // @keyframes rule type is 7
             if(rule.type == 7) {
@@ -202,32 +186,23 @@ export default class CssAtRuleUsage {
         for(let index in rule.cssRules) {
             let keyframe = rule.cssRules[index];
 
-            if(keyframe.keyText) {
-                if(!keyframes[keyframe.keyText]) {
-                    keyframes[keyframe.keyText] = {"count": 1};
+            if(!keyframe.keyText) {
+                continue;
+            }
+
+            let frames = keyframe.keyText.split(', ');
+
+            for(let frame in frames) {
+                if(!keyframes[frame]) {
+                    keyframes[frame] = {"count": 1};
                 } else {
-                    var keyframeCount = keyframes[keyframe.keyText].count;
-                    keyframes[keyframe.keyText].count = keyframeCount + 1;
+                    var keyframeCount = keyframes[frame].count;
+                    keyframes[frame].count = keyframeCount + 1;
                 }
             }
         }
 
         return keyframes;
-    }
-
-    /**
-     * If an atrule as has a pseudo class such as @page, process the pseudo class and
-     * add it to the atrule usage.
-     */
-    private static processPseudoClassesOfAtrules(rule: any): any {
-        var pseudos = Object.create(null);
-
-        let pseudoClass = rule.pseudoClass;
-
-        pseudos[pseudoClass] = Object.create(null);
-        pseudos[pseudoClass] = { "count": 1 };
-
-        return pseudos;
     }
 
     /**
@@ -272,22 +247,5 @@ export default class CssAtRuleUsage {
         props = CssPropertyValuesAnalyzer.analyzePropCount(style, props);
 
         return props;
-    }
-    
-    private static combineUsageStats(oldUsage: any, newUsage: any): any {
-        var modified = oldUsage;
-
-        var keys = Object.keys(newUsage);
-
-        for(let key of keys) {
-            if(modified[key]) {
-                var previousCount = modified[key].count;
-                modified[key].count = previousCount + 1;
-            } else {
-                modified[key] = newUsage[key];
-            }
-        }
-
-        return modified;
     }
 }
