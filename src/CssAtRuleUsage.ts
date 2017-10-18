@@ -1,8 +1,8 @@
-import CssStyleWalker from '../CssStyleWalker';
-import AtRuleUsage from './AtRuleUsage';
-import ConditionalAtRuleUsage from './ConditionalAtRuleUsage';
-import KeyframeAtRuleUsage from './KeyframeAtRuleUsage';
-import CssPropertyValuesAnalyzer from '../CssPropertyValuesAnalyzer';
+import CssStyleWalker from './CssStyleWalker';
+import AtRuleUsage from './atrules/AtRuleUsage';
+import ConditionalAtRuleUsage from './atrules/ConditionalAtRuleUsage';
+import KeyframeAtRuleUsage from './atrules/KeyframeAtRuleUsage';
+import CssPropertyValuesAnalyzer from './CssPropertyValuesAnalyzer';
 
 export default class CssAtRuleUsage {
     public static isRuleAnAtRule(rule): boolean {
@@ -76,7 +76,6 @@ export default class CssAtRuleUsage {
 
         if(rule.cssRules) {
             ret.props = CssAtRuleUsage.analyzeAtRulePropCount(rule.cssRules);
-            //ret.nested = CssAtRuleUsage.processNestedRules(rule.cssRules); // TODO: remove nested
         }
 
         let conditionSelector = CssAtRuleUsage.processConditionText(rule.conditionText);
@@ -93,64 +92,7 @@ export default class CssAtRuleUsage {
      * of the @atrule in question.
      */
     private static processConditionText(conditionText): string {
-        return conditionText = conditionText.replace(/[0-9]/g, '');
-    }
-
-    /**
-     * Analyzes the given @atrules, such as @supports, and counts the usage of the nested rules
-     * according to their type. NOTE: must pass in the current usage of nested rules for the
-     * given @atrule.
-     */
-    private static processNestedRules(cssRules: any): any {
-        var nested = {};
-
-        // find the rule count for nested rules
-        for(let index in cssRules) {
-            let ruleBody = cssRules[index];
-
-            if(!ruleBody.cssText) {
-                continue;
-            }
-
-            var nestRuleSelector;
-
-            if(CssAtRuleUsage.isRuleAnAtRule(ruleBody)) {
-                nestRuleSelector = '@atrule:' + ruleBody.type;
-
-            } else if(ruleBody.style) {
-                if(ruleBody.selectorText) {
-                    try {
-                        var selectorText = CssPropertyValuesAnalyzer.cleanSelectorText(ruleBody.selectorText);
-                        var matchedElements = [].slice.call(document.querySelectorAll(selectorText));
-
-                        if(matchedElements.length == 0) {
-                            continue;
-                        }
-
-                        var cleanedSelectors = CssPropertyValuesAnalyzer.generalizedSelectorsOf(selectorText);
-                        nestRuleSelector = cleanedSelectors[0];  // only passed in one selector to a function that returns many
-                    } catch (ex) {
-                        continue;
-                    }
-                }
-            }
-
-            if(nestRuleSelector) {
-                var individualNested = nestRuleSelector.split(' ');
-
-                for (let selector of individualNested) {
-                    if(!nested[selector]) {
-                        nested[selector] = Object.create(null);
-                        nested[selector] = {"count": 1};
-                    } else {
-                        var nestedCount = nested[selector].count;
-                        nested[selector].count = nestedCount + 1;
-                    }
-                }
-            }
-        }
-
-        return nested;
+        return conditionText.replace(/[0-9]+.*[0-9]+/g, '');
     }
 
     /**
@@ -190,15 +132,13 @@ export default class CssAtRuleUsage {
                 continue;
             }
 
-            let frames = keyframe.keyText.split(', ');
+            let frame = keyframe.keyText;
 
-            for(let frame in frames) {
-                if(!keyframes[frame]) {
-                    keyframes[frame] = {"count": 1};
-                } else {
-                    var keyframeCount = keyframes[frame].count;
-                    keyframes[frame].count = keyframeCount + 1;
-                }
+            if(!keyframes[frame]) {
+                keyframes[frame] = {"count": 1};
+            } else {
+                var keyframeCount = keyframes[frame].count;
+                keyframes[frame].count = keyframeCount + 1;
             }
         }
 

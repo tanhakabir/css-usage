@@ -1,5 +1,5 @@
 import CSSUsage from './CSSUsage';
-import CssAtRuleUsage from './atrules/CssAtRuleUsage';
+import CssAtRuleUsage from './CssAtRuleUsage';
 import CssPropertyValuesAnalyzer from './CssPropertyValuesAnalyzer';
 
 export default class CssStyleWalker {
