@@ -36,7 +36,7 @@ function onready(): void {
     var cssWalker = new CssStyleWalker();
     var selectorAnalyzer = new CssSelectorAnalyzer();
 
-    cssWalker.ruleAnalyzers.push(selectorAnalyzer.parseSelector);
+    //cssWalker.ruleAnalyzers.push(selectorAnalyzer.parseSelector);
 
     var ret = cssWalker.walkOverCssStyleUsage(styleSheets);
     console.log(ret);

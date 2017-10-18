@@ -4,18 +4,18 @@ export default class CssSelectorAnalyzer {
     // Those objects have the following shape: 
     // {"hover":5,"active":1,"focus":2}
     // 
-    public cssPseudos = Object.create(null); // collect stats about which pseudo-classes and pseudo-elements are used in the css
-    public domClasses = Object.create(null); // collect stats about which css classes are found in the <... class> attributes of the dom
-    public cssClasses = Object.create(null); // collect stats about which css classes are used in the css
-    public domIds = Object.create(null);     // collect stats about which ids are found in the <... id> attributes of the dom
-    public cssIds = Object.create(null);     // collect stats about which ids are used in the css
+    public cssPseudos = {}; // collect stats about which pseudo-classes and pseudo-elements are used in the css
+    public domClasses = {}; // collect stats about which css classes are found in the <... class> attributes of the dom
+    public cssClasses = {}; // collect stats about which css classes are used in the css
+    public domIds = {};     // collect stats about which ids are found in the <... id> attributes of the dom
+    public cssIds = {};     // collect stats about which ids are used in the css
     
     // 
     // To understand Modernizer usage, we need to know how often some classes are used at the front of a selector
     // While we're at it, the code also collect the state for ids
     // 
-    public cssLonelyIdGates = Object.create(null);    // .class something-else ==> {"class":1}
-    public cssLonelyClassGates = Object.create(null); // #id something-else ==> {"id":1}
+    public cssLonelyIdGates = {};    // .class something-else ==> {"class":1}
+    public cssLonelyClassGates = {}; // #id something-else ==> {"id":1}
     public cssLonelyClassGatesMatches = [];           // .class something-else ==> [".class something-else"]
     public cssLonelyIdGatesMatches = [];              // #id something-else ==> ["#id something-else"]
     
@@ -38,7 +38,8 @@ export default class CssSelectorAnalyzer {
         if(typeof selectorsText != 'string') return;
             
         var selectors = selectorsText.split(',');
-        for(var i = selectors.length; i--;) { var selector = selectors[i];
+        for(var i = selectors.length; i--;) { 
+            var selector = selectors[i];
             
             // extract all features from the selectors
             this.extractFeature(this.ID_REGEXP, selector, this.cssIds);

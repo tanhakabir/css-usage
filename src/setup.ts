@@ -3,6 +3,7 @@ import CssPropertyValuesAnalyzer from './CssPropertyValuesAnalyzer';
 export default class Setup {
 	public static browserIsEdge = navigator.userAgent.indexOf('Edge')>=0;
 	public static browserIsFirefox = navigator.userAgent.indexOf('Firefox')>=0;
+	public static debugMode = false;
 
     public static guardExecution() {
         // Don't run in subframes for now

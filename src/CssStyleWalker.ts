@@ -1,3 +1,4 @@
+import Setup from './Setup';
 import CSSUsage from './CSSUsage';
 import CssAtRuleUsage from './CssAtRuleUsage';
 import CssPropertyValuesAnalyzer from './CssPropertyValuesAnalyzer';
@@ -22,6 +23,8 @@ export default class CssStyleWalker {
      * Returns the complete CSSUsage.
      */    
     public walkOverCssStyleUsage(styleSheets: any): CSSUsage {
+		if(Setup.debugMode) console.log("STAGE: Walking over styles");
+        
         // Loop through StyeSheets
         for (var ssIndex = 0; ssIndex < styleSheets.length; ssIndex++) {
             var styleSheet = styleSheets[ssIndex];
