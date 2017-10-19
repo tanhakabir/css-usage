@@ -39,6 +39,7 @@ function onready(): void {
     //cssWalker.ruleAnalyzers.push(selectorAnalyzer.parseSelector);
 
     var ret = cssWalker.walkOverCssStyleUsage(styleSheets);
+    console.log(selectorAnalyzer);
     console.log(ret);
 }
 

@@ -14,10 +14,10 @@ export default class CssSelectorAnalyzer {
     // To understand Modernizer usage, we need to know how often some classes are used at the front of a selector
     // While we're at it, the code also collect the state for ids
     // 
-    public cssLonelyIdGates = {};    // .class something-else ==> {"class":1}
-    public cssLonelyClassGates = {}; // #id something-else ==> {"id":1}
-    public cssLonelyClassGatesMatches = [];           // .class something-else ==> [".class something-else"]
-    public cssLonelyIdGatesMatches = [];              // #id something-else ==> ["#id something-else"]
+    public cssLonelyIdGates = {};            // .class something-else ==> {"class":1}
+    public cssLonelyClassGates = {};         // #id something-else ==> {"id":1}
+    public cssLonelyClassGatesMatches = [];  // .class something-else ==> [".class something-else"]
+    public cssLonelyIdGatesMatches = [];     // #id something-else ==> ["#id something-else"]
     
     //
     // These regular expressions catch patterns we want to track (see before)
@@ -34,7 +34,7 @@ export default class CssSelectorAnalyzer {
     /**
      * This analyzer will collect over the selectors the stats defined before
      */
-    public parseSelector(style, selectorsText) {
+    public parseSelector(style, selectorsText, analyzer: CssSelectorAnalyzer) {
         if(typeof selectorsText != 'string') return;
             
         var selectors = selectorsText.split(',');
@@ -42,18 +42,18 @@ export default class CssSelectorAnalyzer {
             var selector = selectors[i];
             
             // extract all features from the selectors
-            this.extractFeature(this.ID_REGEXP, selector, this.cssIds);
-            this.extractFeature(this.CLASS_REGEXP, selector, this.cssClasses);
-            this.extractFeature(this.PSEUDO_REGEXP, selector, this.cssPseudos);
+            analyzer.extractFeature(analyzer.ID_REGEXP, selector, analyzer.cssIds);
+            analyzer.extractFeature(analyzer.CLASS_REGEXP, selector, analyzer.cssClasses);
+            analyzer.extractFeature(analyzer.PSEUDO_REGEXP, selector, analyzer.cssPseudos);
             
             // detect specific selector patterns we're interested in
-            if(this.GATEID_REGEXP.test(selector)) {
-                this.cssLonelyIdGatesMatches.push(selector);
-                this.extractFeature(this.ID_REGEXP1, selector, this.cssLonelyIdGates);
+            if(analyzer.GATEID_REGEXP.test(selector)) {
+                analyzer.cssLonelyIdGatesMatches.push(selector);
+                analyzer.extractFeature(analyzer.ID_REGEXP1, selector, analyzer.cssLonelyIdGates);
             }
-            if(this.GATECLASS_REGEXP.test(selector)) {
-                this.cssLonelyClassGatesMatches.push(selector);
-                this.extractFeature(this.CLASS_REGEXP1, selector, this.cssLonelyClassGates);
+            if(analyzer.GATECLASS_REGEXP.test(selector)) {
+                analyzer.cssLonelyClassGatesMatches.push(selector);
+                analyzer.extractFeature(analyzer.CLASS_REGEXP1, selector, analyzer.cssLonelyClassGates);
             }
         }  
     }
