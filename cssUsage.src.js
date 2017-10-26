@@ -1779,32 +1779,25 @@ void function() { try {
 } catch (ex) { /* do something maybe */ throw ex; } }();
 
 /* 
-    RECIPE: z-index on static flex items
+    RECIPE: Payment Request
     -------------------------------------------------------------
-    Author: Francois Remy
-    Description: Get count of flex items who should create a stacking context but do not really
+    Author: Stanley Hon
+    Description: This counts any page that includes any script references to PaymentRequest
 */
 
 void function() {
+    window.CSSUsage.StyleWalker.recipesToRun.push( function paymentrequest(/*HTML DOM Element*/ element, results) {
 
-    window.CSSUsage.StyleWalker.recipesToRun.push( function zstaticflex(/*HTML DOM Element*/ element, results) {
-        if(!element.parentElement) return;
-
-        // the problem happens if the element is a flex item with static position and non-auto z-index
-        if(getComputedStyle(element.parentElement).display != 'flex') return results;
-        if(getComputedStyle(element).position != 'static') return results;
-        if(getComputedStyle(element).zIndex != 'auto') {
-            results.likely = 1;
+        if(element.nodeName == "SCRIPT") {
+            if (element.innerText.indexOf("PaymentRequest") != -1) {
+                results["use"] = results["use"] || { count: 0 };
+                results["use"].count++;
+            }
         }
 
-        // the problem might happen if z-index could ever be non-auto
-        if(element.CSSUsage["z-index"] && element.CSSUsage["z-index"].valuesArray.length > 0) {
-            results.possible = 1;
-        }
-
+        return results;
     });
 }();
-
 //
 // This file is only here to create the TSV
 // necessary to collect the data from the crawler
