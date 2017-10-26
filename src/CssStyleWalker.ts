@@ -2,6 +2,7 @@ import Setup from './Setup';
 import CSSUsage from './CSSUsage';
 import CssAtRuleUsage from './CssAtRuleUsage';
 import CssPropertyValuesAnalyzer from './CssPropertyValuesAnalyzer';
+import CssSelectorAnalyzer from './CssSelectorAnalyzer';
 
 export default class CssStyleWalker {
     public ruleAnalyzers = [];
@@ -16,6 +17,8 @@ export default class CssStyleWalker {
     private CSSUsageAtRules = {};
     private CSSUsageProps = {};
     private CSSUsageData = {"SuccessfulCrawls":1};
+
+    public selectorAnalyzer = new CssSelectorAnalyzer();
     
     /**
      * For all stylesheets of the document, 
@@ -142,6 +145,8 @@ export default class CssStyleWalker {
         } else {
             this.amountOfSelectors++;
         }
+
+        this.selectorAnalyzer.parseSelector(style, selectorText, this.selectorAnalyzer);
         
         // Run all rule analyzers
         for(var i = 0; i < this.ruleAnalyzers.length; i++) {
