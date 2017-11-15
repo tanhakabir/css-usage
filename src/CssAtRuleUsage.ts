@@ -41,7 +41,6 @@ export default class CssAtRuleUsage {
 
             cRet.props = CssStyleWalker.combineUsageStats(cRet.props, newUsage.props);
             cRet.conditions = CssStyleWalker.combineUsageStats(cRet.conditions, newUsage.conditions);
-            //cRet.nested = CssAtRuleUsage.combineUsageStats(cRet.nested, newUsage.nested);
 
             ret = cRet;
         } else  {
